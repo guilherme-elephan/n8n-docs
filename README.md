@@ -3,10 +3,10 @@
 Automatize seus workflows conectando a Elephan ao n8n.
 
 Com essa integração, você pode:
-- Monitorar reuniões automaticamente  
-- Reagir a sentimentos negativos  
-- Enviar resumos por email ou Slack  
-- Integrar com CRM, planilhas e outras ferramentas  
+- Monitorar reuniões automaticamente
+- Reagir a sentimentos negativos
+- Enviar resumos por email ou Slack
+- Integrar com CRM, planilhas e outras ferramentas
 
 ---
 
@@ -14,20 +14,20 @@ Com essa integração, você pode:
 
 Antes de começar, você precisa:
 
-- Conta ativa na Elephan  
-- Conta no n8n  
-- Uma API Key da Elephan  
+- Conta ativa na Elephan
+- Conta no n8n
+- Uma API Key da Elephan
 
 ---
 
 ## 🔑 1. Gerar API Key na Elephan
 
-1. Acesse a plataforma Elephan  
-2. Vá em **Configurações → API / Integrações**  
-3. Clique em **Gerar nova API Key**  
-4. Copie a chave gerada  
+1. Acesse a plataforma Elephan
+2. Vá em **Configurações → API / Integrações**
+3. Clique em **Gerar nova API Key**
+4. Copie a chave gerada
 
-> ⚠️ **Importante:**  
+> ⚠️ **Importante:**
 > Guarde sua API Key com segurança. Ela dá acesso aos seus dados.
 
 ---
@@ -36,23 +36,27 @@ Antes de começar, você precisa:
 
 No n8n:
 
-1. Acesse **Credentials**  
-2. Clique em **New Credential**  
-3. Escolha **Generic Credential Type**  
-4. Selecione **Bearer Auth**  
+1. Acesse **Credentials**
+2. Clique em **New Credential**
+3. Escolha **Generic Credential Type**
+4. Selecione **Bearer Auth**
 
 Preencha:
+
+```
 Authorization: Bearer SUA_API_KEY
+```
+
 Substitua `SUA_API_KEY` pela chave gerada na Elephan.
 
 ---
 
 ## 📥 3. Importar workflows
 
-1. Baixe os arquivos `.json` fornecidos  
-2. No n8n, clique em **Import Workflow**  
-3. Selecione o arquivo desejado  
-4. Associe a credencial criada  
+1. Baixe os arquivos `.json` fornecidos
+2. No n8n, clique em **Import Workflow**
+3. Selecione o arquivo desejado
+4. Associe a credencial criada
 
 ---
 
@@ -60,22 +64,22 @@ Substitua `SUA_API_KEY` pela chave gerada na Elephan.
 
 ### Workflows base
 
-- **Sync Transcribes** → Lista reuniões  
-- **Sync Users** → Lista usuários  
-- **Sync Prompts** → Lista prompts  
+- [**Sync Transcribes**](./base/sync-transcribes.json) → Lista reuniões
+- [**Sync Users**](./base/sync-users.json) → Lista usuários
+- [**Sync Prompts**](./base/sync-prompts.json) → Lista prompts
 
 ### Workflows de exemplo
 
-- **Alert Negative Sentiment** → Envia alerta quando uma reunião possui sentimento negativo  
-- **Send Summary Email** → Envia automaticamente o resumo da reunião por email  
+- [**Alert Negative Sentiment**](./examples/alert-negative.json) → Envia alerta por email quando uma reunião possui sentimento negativo
+- [**Send Summary to Slack**](./examples/send-summary.json) → Envia automaticamente o resumo da reunião para um canal do Slack
 
 ---
 
 ## ▶️ 4. Executar automação
 
-1. Abra o workflow desejado  
-2. Clique em **Execute Workflow** para testar  
-3. Ative o workflow para execução automática  
+1. Abra o workflow desejado
+2. Clique em **Execute Workflow** para testar
+3. Ative o workflow para execução automática
 
 ---
 
@@ -83,32 +87,25 @@ Substitua `SUA_API_KEY` pela chave gerada na Elephan.
 
 ### 🔴 Alerta de sentimento negativo
 
+```
 Sync Transcribes → Filtrar NEGATIVE → Enviar Email/Slack
-
-
----
-
-### 📩 Envio automático de resumo
-
-
-Sync Transcribes → Extrair resumo → Enviar Email
-
+```
 
 ---
 
-### 📊 Registro em planilha
+### 📩 Envio automático de resumo para o Slack
 
-
-Sync Transcribes → Google Sheets
-
+```
+Sync Transcribes → Extrair resumo → Enviar ao Slack
+```
 
 ---
 
 ## 🔐 Segurança
 
-- Nunca compartilhe sua API Key  
-- Utilize apenas em ambientes confiáveis  
-- A Elephan aplica rate limiting nas requisições  
+- Nunca compartilhe sua API Key
+- Utilize apenas em ambientes confiáveis
+- A Elephan aplica rate limiting nas requisições
 
 ---
 
@@ -116,21 +113,21 @@ Sync Transcribes → Google Sheets
 
 ### Não retorna dados
 
-- Verifique se a API Key está correta  
-- Confirme que o endpoint está acessível  
+- Verifique se a API Key está correta
+- Confirme que o endpoint está acessível
 
 ### Workflow não executa
 
-- Verifique se o workflow está ativo  
-- Teste manualmente com **Execute Workflow**  
+- Verifique se o workflow está ativo
+- Teste manualmente com **Execute Workflow**
 
 ---
 
 ## 📌 Observações
 
-- Os workflows base fornecem os dados  
-- Os exemplos mostram como usar esses dados  
-- Você pode adaptar os fluxos conforme sua necessidade  
+- Os workflows base fornecem os dados
+- Os exemplos mostram como usar esses dados
+- Você pode adaptar os fluxos conforme sua necessidade
 
 ---
 

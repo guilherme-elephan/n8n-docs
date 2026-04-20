@@ -1,0 +1,156 @@
+{
+  "name": "Example: Send meeting details to slack",
+  "nodes": [
+    {
+      "parameters": {
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "2616caec-199c-4db7-8c07-7a6243dd4f14",
+      "name": "Send a message",
+      "webhookId": "6b3afe16-4cf9-4690-a446-c48626d81527"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        688,
+        0
+      ],
+      "id": "b1a0b47f-96af-4557-826a-d626b9f6b405",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst items = $input.all();\nconst processedIds = staticData.processedIds || [];\n\nconst newItems = items.filter(item => {\n  return !processedIds.includes(item.json.id);\n});\n\nnewItems.forEach(item => {\n  processedIds.push(item.json.id);\n});\nstaticData.processedIds = processedIds;\n\nreturn newItems;"
+      },
+      "id": "2358be30-2ef8-462d-9317-3d497371f94e",
+      "name": "Filter Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 23
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        0
+      ],
+      "id": "aab045bd-4fcc-429f-9981-10b695265474",
+      "name": "Trigger New Transcribe1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.elephan.dev/v1/transcribes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        464,
+        0
+      ],
+      "id": "5a114699-9a2a-40d6-bac4-3143cfb2429d",
+      "name": "Get Transcribes1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger New Transcribe1": {
+      "main": [
+        [
+          {
+            "node": "Get Transcribes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcribes1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7e28eff6-7c22-4fbc-a806-22f39bc41d36",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d4c2889f62a2daaccb14beb2161eea8e94187821f4a152b779a7b564ea80ab89"
+  },
+  "id": "8XSn9WNAM9LLfPzw",
+  "tags": []
+}

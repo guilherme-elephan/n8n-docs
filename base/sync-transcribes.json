@@ -1,0 +1,130 @@
+{
+  "name": "Elephan Sync Transcribes",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 23
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "746595b3-8baf-48b6-ac18-b8ed4efade51",
+      "name": "Trigger New Transcribe"
+    },
+    {
+      "parameters": {
+        "url": "https://api.elephan.dev/v1/transcribes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "cb54ddcb-d0ff-4114-9e00-9afd49340fb9",
+      "name": "Get Transcribes",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "9c500276-90ea-4e69-950f-23acf5c75aa3",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst items = $input.all();\nconst processedIds = staticData.processedIds || [];\n\nconst newItems = items.filter(item => {\n  return !processedIds.includes(item.json.id);\n});\n\nnewItems.forEach(item => {\n  processedIds.push(item.json.id);\n});\nstaticData.processedIds = processedIds;\n\nreturn newItems;"
+      },
+      "id": "ec13e15a-fd07-476c-89dc-eb490cdef2fe",
+      "name": "Filter Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger New Transcribe": {
+      "main": [
+        [
+          {
+            "node": "Get Transcribes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcribes": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5d25cc45-4d58-4053-9582-1e6d289c4e82",
+  "meta": {
+    "instanceId": "d4c2889f62a2daaccb14beb2161eea8e94187821f4a152b779a7b564ea80ab89"
+  },
+  "id": "bdLqNuemTIHdmcb5",
+  "tags": []
+}

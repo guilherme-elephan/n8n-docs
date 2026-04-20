@@ -1,0 +1,139 @@
+{
+  "name": "Elephan Sync Transcribe - User",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b9325b2b-c87d-4c7d-b667-644993842a02",
+      "name": "Trigger New Transcribe"
+    },
+    {
+      "parameters": {
+        "url": "https://api.elephan.dev/v1/transcribes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7139d99b-93a3-4d76-ba23-fe848b092577",
+      "name": "Get Transcribes",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst items = $input.all();\nconst processedIds = staticData.processedIds || [];\n\nconst newItems = items.filter(item => {\n  return !processedIds.includes(item.json.id);\n});\n\nnewItems.forEach(item => {\n  processedIds.push(item.json.id);\n});\nstaticData.processedIds = processedIds;\n\nreturn newItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "092b1d86-77aa-49b6-94f2-08180bdfeada",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elephan.dev/v1/users/{{ $json.data[0].user.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "bec3757e-0040-454c-ad26-abe780e5b7b1",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger New Transcribe": {
+      "main": [
+        [
+          {
+            "node": "Get Transcribes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcribes": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9809a007-738c-42c1-b0e0-dd96b5724650",
+  "meta": {
+    "instanceId": "d4c2889f62a2daaccb14beb2161eea8e94187821f4a152b779a7b564ea80ab89"
+  },
+  "id": "dSjPV2blNOMMLCh9",
+  "tags": []
+}

@@ -1,0 +1,179 @@
+{
+  "name": "Example: Send an Email meeting's sentiment is negative",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst negativeMeetings = items.filter(item => {\n  const sentiment = item.json.transcript?.speakers?.[0]?.sentiment?.Sentiment;\n  return sentiment === \"NEGATIVE\";\n});\n\nreturn negativeMeetings;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "7d59032e-4042-43a9-903c-7a6d28c9b0e0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "c2f3f5b7-3f6d-4bbc-bb15-7f0ac055d7ef",
+      "name": "Send an Email",
+      "webhookId": "eeccc64b-7b89-4322-a29e-fba823a4715f"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        464,
+        0
+      ],
+      "id": "baafbc5c-7d69-471b-af70-ca15edc1a894",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst items = $input.all();\nconst processedIds = staticData.processedIds || [];\n\nconst newItems = items.filter(item => {\n  return !processedIds.includes(item.json.id);\n});\n\nnewItems.forEach(item => {\n  processedIds.push(item.json.id);\n});\nstaticData.processedIds = processedIds;\n\nreturn newItems;"
+      },
+      "id": "2dbcbf67-3b4a-4e7d-8ec4-a92def2f6738",
+      "name": "Filter Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 23
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        0
+      ],
+      "id": "b36d7411-50ca-4892-9d59-19be6fd9a3e2",
+      "name": "Trigger New Transcribe1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.elephan.dev/v1/transcribes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "a24664b4-071f-49aa-8318-08a31c48579a",
+      "name": "Get Transcribes1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger New Transcribe1": {
+      "main": [
+        [
+          {
+            "node": "Get Transcribes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcribes1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1d5d3869-b9ad-4467-9b52-236d68b926a0",
+  "meta": {
+    "instanceId": "d4c2889f62a2daaccb14beb2161eea8e94187821f4a152b779a7b564ea80ab89"
+  },
+  "id": "VRSiiAfT9zDkFXCL",
+  "tags": []
+}

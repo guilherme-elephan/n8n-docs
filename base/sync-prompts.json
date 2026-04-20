@@ -1,0 +1,144 @@
+{
+  "name": "Elephan Sync Transcribe - Prompts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d7138be6-db69-4687-b791-3e0e45a12bd9",
+      "name": "Trigger New Transcribe"
+    },
+    {
+      "parameters": {
+        "url": "https://api.elephan.dev/v1/transcribes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "27d23620-2145-4d19-b851-8691dba26bd7",
+      "name": "Get Transcribes",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elephan.dev/v1/prompts/{{ $json.data[0].prompt.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "5e89beef-bfbc-461f-a12e-bf25e59564ef",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "CBiFsNZWecQoiuc5",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst items = $input.all();\nconst processedIds = staticData.processedIds || [];\n\nconst newItems = items.filter(item => {\n  return !processedIds.includes(item.json.id);\n});\n\nnewItems.forEach(item => {\n  processedIds.push(item.json.id);\n});\nstaticData.processedIds = processedIds;\n\nreturn newItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8a771280-917c-4489-83ad-4c546311b57b",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger New Transcribe": {
+      "main": [
+        [
+          {
+            "node": "Get Transcribes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcribes": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7d0ec1d7-f9fd-4f8f-a996-cfad970b7b14",
+  "meta": {
+    "instanceId": "d4c2889f62a2daaccb14beb2161eea8e94187821f4a152b779a7b564ea80ab89"
+  },
+  "id": "d2IwTXv9fgJ26Kdq",
+  "tags": []
+}
